@@ -21,7 +21,28 @@ const mainnetServers = [
 "node.minisatoshi.cash", // minisatoshi
 ];
 
-Future<String> doMemoAction (String memoMessage, MemoCode memoAction, [String memoTopic = ""]) async {
+void main() async {
+  // await print("\n\n" + doMemoAction("ProfilePostMessage", MemoCode.ProfilePostMessage));
+  // print("\n${await doMemoAction("IMG1 https://imgur.com/eIEjcUe", MemoCode.ProfilePostMessage,"")}");
+  // print("\n${await doMemoAction("IMG2 https://i.imgur.com/eIEjcUe.jpeg", MemoCode.ProfilePostMessage,"")}");
+  // print("\n${await doMemoAction("YT1 https://youtu.be/dQw4w9WgXcQ", MemoCode.ProfilePostMessage,"")}");
+  print("\n${await doMemoAction("YT2 https://www.youtube.com/watch?v=dQw4w9WgXcQ", MemoCode.ProfilePostMessage,"")}");
+  // var other = await doMemoAction("https://imgur.com/eIEjcUe", MemoCode.SetProfileImgUrl, "");
+  // print("\n" + other);
+  // other = await doMemoAction("Keloke", MemoCode.SetProfileName);
+  // print("\n" + other);
+  // other = await doMemoAction("Ke paso en Barrio Bitcoin", MemoCode.SetProfileText);
+  // print("\n" + other);
+  // other = await doMemoAction("Bitcoin+Map", MemoCode.TopicFollow);
+  // print("\n" + other);
+  // other = await doMemoAction("Escuchame wow increible no me digas ke veina naguara vergacion", MemoCode.TopicPostMessage, "zxcvsadf");
+  // print("\n" + other);
+  // other = await doMemoAction("Bitcoin+Map", MemoCode.TopicFollowUndo);
+  // print("\n" + other);
+}
+
+Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String memoTopic) async {
+  print("\n" + memoAction.opCode + "\n" + memoAction.name);
   /// connect to electrum service with websocket
   /// please see `services_examples` folder for how to create electrum websocket service
   final service = await ElectrumWebSocketService.connect(
@@ -72,7 +93,7 @@ Future<String> doMemoAction (String memoMessage, MemoCode memoAction, [String me
     return "No UTXO funds found";
   }
 
-  var fee = BtcUtils.toSatoshi("0.00003");
+  var fee = BtcUtils.toSatoshi("0.000003");
   final bchTransaction = MemoTransactionBuilder(
     outPuts: [
       /// change input (sumofutxos - spend)
@@ -87,7 +108,7 @@ Future<String> doMemoAction (String memoMessage, MemoCode memoAction, [String me
     utxos: utxos,
     memo: memoMessage,
       memoCode: memoAction,
-      memoTopic: memoTopic.isNotEmpty ? memoTopic : ""
+      memoTopic: memoTopic
   );
   final transaaction =
       bchTransaction.buildTransaction((trDigest, utxo, publicKey, sighash) {
@@ -97,7 +118,6 @@ Future<String> doMemoAction (String memoMessage, MemoCode memoAction, [String me
   /// transaction ID
   transaaction.txId();
   print(transaaction.txId());
-  print("\n\n\n");
 
   /// for calculation fee
   transaaction.getSize();
