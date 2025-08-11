@@ -2,9 +2,9 @@ import 'dart:developer';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:example/bitcoin_cash/memo_code.dart';
-import 'package:example/services_examples/electrum/electrum_websocket_service.dart';
 
+import 'electrum_websocket_service.dart';
+import 'memo_code.dart';
 import 'memo_transaction_builder.dart';
 
 

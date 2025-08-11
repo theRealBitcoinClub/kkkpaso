@@ -645,4 +645,7 @@ be retrieved by anyone who examines the blockchain's history.
         : _buildUnlockingScript(signatures.first, utxo);
     input.scriptSig = Script(script: scriptSig);
   }
+
+  @override
+  List<UtxoWithAddress> get utxos => utxosInfo;
 }

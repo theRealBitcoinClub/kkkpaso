@@ -7,8 +7,11 @@
       "name": "keloke",
       "version": "1.0.0+1",
       "dependencies": [
+        "bitcoin_base",
+        "blockchain_utils",
         "cupertino_icons",
-        "flutter"
+        "flutter",
+        "http"
       ],
       "devDependencies": [
         "flutter_lints",
@@ -54,6 +57,28 @@
       "name": "cupertino_icons",
       "version": "1.0.8",
       "dependencies": []
+    },
+    {
+      "name": "http",
+      "version": "1.5.0",
+      "dependencies": [
+        "async",
+        "http_parser",
+        "meta",
+        "web"
+      ]
+    },
+    {
+      "name": "blockchain_utils",
+      "version": "5.1.0",
+      "dependencies": []
+    },
+    {
+      "name": "bitcoin_base",
+      "version": "6.7.0",
+      "dependencies": [
+        "blockchain_utils"
+      ]
     },
     {
       "name": "flutter",
@@ -234,6 +259,28 @@
       "name": "lints",
       "version": "5.1.1",
       "dependencies": []
+    },
+    {
+      "name": "web",
+      "version": "1.1.1",
+      "dependencies": []
+    },
+    {
+      "name": "http_parser",
+      "version": "4.1.2",
+      "dependencies": [
+        "collection",
+        "source_span",
+        "string_scanner",
+        "typed_data"
+      ]
+    },
+    {
+      "name": "typed_data",
+      "version": "1.4.0",
+      "dependencies": [
+        "collection"
+      ]
     }
   ],
   "configVersion": 1
