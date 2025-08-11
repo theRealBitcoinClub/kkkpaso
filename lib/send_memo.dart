@@ -26,8 +26,8 @@ void main() async {
   // print("\n${await doMemoAction("IMG1 https://imgur.com/eIEjcUe", MemoCode.ProfilePostMessage,"")}");
   // print("\n${await doMemoAction("IMG2 https://i.imgur.com/eIEjcUe.jpeg", MemoCode.ProfilePostMessage,"")}");
   // print("\n${await doMemoAction("YT1 https://youtu.be/dQw4w9WgXcQ", MemoCode.ProfilePostMessage,"")}");
-  print("\n${await doMemoAction("YT2 https://www.youtube.com/watch?v=dQw4w9WgXcQ", MemoCode.ProfilePostMessage,"")}");
-  // var other = await doMemoAction("https://imgur.com/eIEjcUe", MemoCode.SetProfileImgUrl, "");
+  // print("\n${await doMemoAction("YT2 https://www.youtube.com/watch?v=dQw4w9WgXcQ", MemoCode.ProfilePostMessage,"")}");
+  // var other = await doMemoAction("https://imgur.com/eIEjcUe.jpg", MemoCode.SetProfileImgUrl, "");
   // print("\n" + other);
   // other = await doMemoAction("Keloke", MemoCode.SetProfileName);
   // print("\n" + other);
