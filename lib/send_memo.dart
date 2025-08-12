@@ -3,8 +3,11 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:dart_web_scraper/common/enums.dart';
 import 'package:dart_web_scraper/common/models/parser_model.dart';
+import 'package:dart_web_scraper/common/models/parser_options/string_between_parser_options.dart';
+import 'package:dart_web_scraper/common/models/parser_options_model.dart';
 import 'package:dart_web_scraper/common/models/scraper_config_model.dart';
 import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
+import 'package:keloke/memo_model_creator.dart';
 import 'package:keloke/memo_model_post.dart';
 
 import 'electrum_websocket_service.dart';
@@ -109,7 +112,7 @@ void main() async {
             parents: ["_root"],
             type: ParserType.element,
             selectors: [
-              "topic-post",
+              ".topic-post",
             ],
             multiple: true
         ),
@@ -118,54 +121,132 @@ void main() async {
             parents: ["posts"],
             type: ParserType.text,
             selectors: [
-              "message",
+              ".message",
             ]
         ),
+        // Parser(
+        //     multiple: true,
+        //     id: "profilePic",
+        //     parents: ["posts"],
+        //     type: ParserType.url,
+        //     selectors: [
+        //       ".profile-pic",
+        //     ]
+        //
+        // ),
+        // Parser(
+        //     multiple: true,
+        //     id: "txhash",
+        //     parents: ["_root"],
+        //     type: ParserType.attribute,
+        //     selectors: [
+        //       "topic-post::data-tx-hash",
+        //     ]
+        //
+        // ),
         Parser(
-            id: "txHash",
+            id: "profileUrl",
             parents: ["posts"],
             type: ParserType.url,
             selectors: [
-              "a",
+              ".profile",
             ]
+
         ),
         Parser(
-            id: "created",
+            id: "txhash",
             parents: ["posts"],
-            type: ParserType.attribute,
+            type: ParserType.element,
             selectors: [
-              "title",
+              "input",
+            ]
+
+
+        ),
+        // Parser(
+        //     multiple: true,
+        //     id: "urls",
+        //     parents: ["posts"],
+        //     type: ParserType.url,
+        //     selectors: [
+        //       ".message",
+        //     ]
+        //
+        // ),
+        Parser(
+            id: "images",
+            parents: ["posts"],
+            type: ParserType.url,
+            selectors: [
+              ".imgur",
             ]
         ),
-        Parser(
-            id: "allposts",
-            parents: ["_root"],
-            type: ParserType.text,
-            selectors: [
-              "all-posts",
-            ]
-        )
+              Parser(
+                multiple: true,
+                  id: "posttext",
+                  parents: ["_root"],
+                  type: ParserType.text,
+                  selectors: [
+                    ".topic-post",
+                  ]
+              ),
+        // Parser(
+        //     multiple: true,
+        //     id: "posturls",
+        //     parents: ["_root"],
+        //     type: ParserType.url,
+        //     selectors: [
+        //       ".topic-post",
+        //     ]
+        // ),
+        // Parser(
+        //     multiple: true,
+        //     id: "posturlParams",
+        //     parents: ["_root"],
+        //     type: ParserType.element,
+        //     selectors: [
+        //       ".topic-post",
+        //     ]
+        // ),
+        // Parser(
+        //     id: "created",
+        //     parents: ["posts"],
+        //     type: ParserType.attribute,
+        //     selectors: [
+        //       "title",
+        //     ]
+        // ),
+        // Parser(
+        //     id: "allposts",
+        //     parents: ["_root"],
+        //     type: ParserType.strBetween,
+        //     selectors: ,
+        //     parserOptions: ParserOptions.stringBetween(
+        //         options: StringBetweenParserOptions(
+        //             start: '<div id="all-posts" style="position:relative;">',
+        //             end: '<form id="form-new-topic-message"')),
+        // )
       ],
     ),
   );
 
   List<MemoModelPost> postList = [];
-
-  var allPosts = posts.values.elementAt(1).toString()
-      .replaceAll(",", "")
-      .split("\n");
-  List<String> cleanPosts = [];
-
-  for (String line in allPosts.clone()) {
-    if (line.trim().isNotEmpty)
-      cleanPosts.add(line.trim());
-  }
+  //
+  // var allPosts = posts.values.elementAt(1).toString()
+  //     .replaceAll(",", "")
+  //     .split("\n");
+  // List<String> cleanPosts = [];
+  //
+  // for (String line in allPosts.clone()) {
+  //   if (line.trim().isNotEmpty)
+  //     cleanPosts.add(line.trim());
+  // }
 
   int index = 0;
   for (Map<String, Object> value in posts.values.first as Iterable ) {
     postList.add(new MemoModelPost(
         text: value["msg"].toString(),
-        created: value["created"].toString()));
+        creator: MemoModelCreator(id: value["profileUrl"].toString().substring(8))));
         // txHash: int.parse(cleanBody[itemIndex+3]),
         // lastPost: cleanBody[itemIndex+1],
         // postCount: int.parse(cleanBody[itemIndex+2])));
@@ -174,7 +255,7 @@ void main() async {
 
   for (MemoModelPost p in postList) {
     print(p.text);
-    print(p.created);
+    print(p.creator!.id);
   }
 
 
