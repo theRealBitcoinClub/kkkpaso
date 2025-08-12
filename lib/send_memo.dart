@@ -12,6 +12,7 @@ import 'package:keloke/memo_model_post.dart';
 
 import 'electrum_websocket_service.dart';
 import 'memo_code.dart';
+import 'memo_model_topic.dart';
 import 'memo_transaction_builder.dart';
 
 
@@ -31,80 +32,81 @@ const mainnetServers = [
 void main() async {
   WebScraper webScraper = WebScraper();
 
-  // Map<String, Object> topics = await webScraper.scrape(
-  //   url: Uri.parse("https://memo.cash/topics/all"),
-  //   scraperConfig: ScraperConfig(
-  //     parsers: [
-  //       Parser(
-  //         id: "topics",
-  //         parents: ["_root"],
-  //         type: ParserType.element,
-  //         selectors: [
-  //           "td",
-  //         ],
-  //         multiple: true
-  //       ),
-  //       Parser(
-  //           id: "topic",
-  //           parents: ["topics"],
-  //           type: ParserType.text,
-  //           selectors: [
-  //             "a",
-  //           ]
-  //       ),
-  //       Parser(
-  //           id: "topicURL",
-  //           parents: ["topics"],
-  //           type: ParserType.url,
-  //           selectors: [
-  //             "a",
-  //           ]
-  //       ),
-  //       Parser(
-  //           id: "tbody",
-  //           parents: ["_root"],
-  //           type: ParserType.text,
-  //           selectors: [
-  //             "tbody",
-  //           ]
-  //       )
-  //     ],
-  //   ),
-  // );
-  //
-  // List<MemoModelTopic> topicList = [];
-  //
-  // var tbody = topics.values.elementAt(1).toString()
-  //     .replaceAll(",", "")
-  //     .split("\n");
-  // List<String> cleanBody = [];
-  //
-  // for (String line in tbody.clone()) {
-  //   if (line.trim().isNotEmpty)
-  //     cleanBody.add(line.trim());
-  // }
-  //
-  // int itemIndex = 0;
-  // for (Map<String, Object> value in topics.values.first as Iterable ) {
-  //   topicList.add(new MemoModelTopic(
-  //       header: value["topic"].toString(),
-  //       url: value["topicURL"].toString(),
-  //       followerCount: int.parse(cleanBody[itemIndex+3]),
-  //       lastPost: cleanBody[itemIndex+1],
-  //       postCount: int.parse(cleanBody[itemIndex+2])));
-  //   itemIndex += 4;
-  // }
-  //
-  // for (MemoModelTopic m in topicList) {
-  //   print(m.header);
-  //   print(m.url);
-  //   print(m.followerCount);
-  //   print(m.postCount);
-  //   print(m.lastPost);
-  // }
+  Map<String, Object> topics = await webScraper.scrape(
+    url: Uri.parse("https://memo.cash/topics/all"),
+    scraperConfig: ScraperConfig(
+      parsers: [
+        Parser(
+          id: "topics",
+          parents: ["_root"],
+          type: ParserType.element,
+          selectors: [
+            "td",
+          ],
+          multiple: true
+        ),
+        Parser(
+            id: "topic",
+            parents: ["topics"],
+            type: ParserType.text,
+            selectors: [
+              "a",
+            ]
+        ),
+        Parser(
+            id: "topicURL",
+            parents: ["topics"],
+            type: ParserType.url,
+            selectors: [
+              "a",
+            ]
+        ),
+        Parser(
+            id: "tbody",
+            parents: ["_root"],
+            type: ParserType.text,
+            selectors: [
+              "tbody",
+            ]
+        )
+      ],
+    ),
+  );
+
+  List<MemoModelTopic> topicList = [];
+
+  var tbody = topics.values.elementAt(1).toString()
+      .replaceAll(",", "")
+      .split("\n");
+  List<String> cleanBody = [];
+
+  for (String line in tbody.clone()) {
+    if (line.trim().isNotEmpty)
+      cleanBody.add(line.trim());
+  }
+
+  int itemIndex = 0;
+  for (Map<String, Object> value in topics.values.first as Iterable ) {
+    topicList.add(new MemoModelTopic(
+        header: value["topic"].toString(),
+        url: value["topicURL"].toString(),
+        followerCount: int.parse(cleanBody[itemIndex+3]),
+        lastPost: cleanBody[itemIndex+1],
+        postCount: int.parse(cleanBody[itemIndex+2])));
+    itemIndex += 4;
+  }
+
+  for (MemoModelTopic currentTopic in topicList) {
+    print(currentTopic.header);
+    print(currentTopic.url);
+    print(currentTopic.followerCount);
+    print(currentTopic.postCount);
+    print(currentTopic.lastPost);
+
+
 
   Map<String, Object> posts = await webScraper.scrape(
-    url: Uri.parse("https://memo.cash/topic/Bitcoin+Map"),
+    url: Uri.parse("https://memo.cash/" + currentTopic.url!),
     scraperConfig: ScraperConfig(
       parsers: [
         Parser(
@@ -124,26 +126,6 @@ void main() async {
               ".message",
             ]
         ),
-        // Parser(
-        //     multiple: true,
-        //     id: "profilePic",
-        //     parents: ["posts"],
-        //     type: ParserType.url,
-        //     selectors: [
-        //       ".profile-pic",
-        //     ]
-        //
-        // ),
-        // Parser(
-        //     multiple: true,
-        //     id: "txhash",
-        //     parents: ["_root"],
-        //     type: ParserType.attribute,
-        //     selectors: [
-        //       "topic-post::data-tx-hash",
-        //     ]
-        //
-        // ),
         Parser(
             id: "profileUrl",
             parents: ["posts"],
@@ -153,26 +135,14 @@ void main() async {
             ]
 
         ),
-        Parser(
-            id: "txhash",
-            parents: ["posts"],
-            type: ParserType.element,
-            selectors: [
-              "input",
-            ]
-
-
-        ),
-        // Parser(
-        //     multiple: true,
-        //     id: "urls",
-        //     parents: ["posts"],
-        //     type: ParserType.url,
-        //     selectors: [
-        //       ".message",
-        //     ]
-        //
-        // ),
+      Parser(
+          id: "creatorName",
+          parents: ["posts"],
+          type: ParserType.text,
+          selectors: [
+            ".profile",
+          ]
+      ),
         Parser(
             id: "images",
             parents: ["posts"],
@@ -189,43 +159,7 @@ void main() async {
                   selectors: [
                     ".topic-post",
                   ]
-              ),
-        // Parser(
-        //     multiple: true,
-        //     id: "posturls",
-        //     parents: ["_root"],
-        //     type: ParserType.url,
-        //     selectors: [
-        //       ".topic-post",
-        //     ]
-        // ),
-        // Parser(
-        //     multiple: true,
-        //     id: "posturlParams",
-        //     parents: ["_root"],
-        //     type: ParserType.element,
-        //     selectors: [
-        //       ".topic-post",
-        //     ]
-        // ),
-        // Parser(
-        //     id: "created",
-        //     parents: ["posts"],
-        //     type: ParserType.attribute,
-        //     selectors: [
-        //       "title",
-        //     ]
-        // ),
-        // Parser(
-        //     id: "allposts",
-        //     parents: ["_root"],
-        //     type: ParserType.strBetween,
-        //     selectors: ,
-        //     parserOptions: ParserOptions.stringBetween(
-        //         options: StringBetweenParserOptions(
-        //             start: '<div id="all-posts" style="position:relative;">',
-        //             end: '<form id="form-new-topic-message"')),
-        // )
+              )
       ],
     ),
   );
@@ -253,10 +187,11 @@ void main() async {
 
   int index = 0;
   for (Map<String, Object> value in posts.values.first as Iterable ) {
-    postList.add(new MemoModelPost(
+    postList.add(new MemoModelPost(topic: currentTopic,
         text: value["msg"].toString(),
         txHash: txHashList[index],
-        creator: MemoModelCreator(name: cleanPosts[1],
+        imageUrl: value["images"].toString(),
+        creator: MemoModelCreator(name: value["creatorName"].toString(),
             id: value["profileUrl"].toString().substring(8))));
         // txHash: int.parse(cleanBody[itemIndex+3]),
         // lastPost: cleanBody[itemIndex+1],
@@ -265,13 +200,15 @@ void main() async {
   }
 
   for (MemoModelPost p in postList) {
-    print(p.text);
+    print(p.text !=null ? p.text : "");
+    print(p.imageUrl != null ? p.imageUrl : "");
     print(p.creator!.name);
     print(p.creator!.id);
     print(p.txHash);
   }
 
 
+  }
   // await print("\n\n" + doMemoAction("ProfilePostMessage", MemoCode.ProfilePostMessage));
   // print("\n${await doMemoAction("IMG1 https://imgur.com/eIEjcUe", MemoCode.ProfilePostMessage,"")}");
   // print("\n${await doMemoAction("IMG2 https://i.imgur.com/eIEjcUe.jpeg", MemoCode.ProfilePostMessage,"")}");

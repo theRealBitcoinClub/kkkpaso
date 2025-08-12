@@ -1,4 +1,5 @@
 import 'package:keloke/memo_model_creator.dart';
+import 'package:keloke/memo_model_topic.dart';
 
 class MemoModelPost {
   MemoModelPost({
@@ -12,7 +13,8 @@ class MemoModelPost {
     this.likeCounter,
     this.replyCounter,
     this.created,
-    this.hashtags
+    this.hashtags,
+    this.topic
   });
 
   final int? tipsInSatoshi;
@@ -26,4 +28,5 @@ class MemoModelPost {
   final List<String>? urls;
   final List<String>? hashtags;
   final MemoModelCreator? creator;
+  final MemoModelTopic? topic;
 }
