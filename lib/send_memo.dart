@@ -231,31 +231,44 @@ void main() async {
   );
 
   List<MemoModelPost> postList = [];
-  //
-  // var allPosts = posts.values.elementAt(1).toString()
-  //     .replaceAll(",", "")
-  //     .split("\n");
-  // List<String> cleanPosts = [];
-  //
-  // for (String line in allPosts.clone()) {
-  //   if (line.trim().isNotEmpty)
-  //     cleanPosts.add(line.trim());
-  // }
+
+  var allPosts = posts.values.elementAt(1).toString()
+      .replaceAll(",", "")
+      .split("\n");
+  List<String> cleanPosts = [];
+  List<String> txHashList = [];
+
+  for (String line in allPosts.clone()) {
+    if (line.trim().isEmpty)
+      continue;
+
+    String trimmedLine = line.trim();
+    cleanPosts.add(trimmedLine);
+
+    var pattern = 'MemoApp.Form.LikesToggle("';
+    if (trimmedLine.startsWith(pattern))
+      txHashList.add(trimmedLine.substring(pattern.length
+          , pattern.length + "3108a3898df75d4f2c972f0543cb9b6ed6cf6c8d84f01a60627bb3455b084bce".length));
+  }
 
   int index = 0;
   for (Map<String, Object> value in posts.values.first as Iterable ) {
     postList.add(new MemoModelPost(
         text: value["msg"].toString(),
-        creator: MemoModelCreator(id: value["profileUrl"].toString().substring(8))));
+        txHash: txHashList[index],
+        creator: MemoModelCreator(name: cleanPosts[1],
+            id: value["profileUrl"].toString().substring(8))));
         // txHash: int.parse(cleanBody[itemIndex+3]),
         // lastPost: cleanBody[itemIndex+1],
         // postCount: int.parse(cleanBody[itemIndex+2])));
-    index += 4;
+    index ++;
   }
 
   for (MemoModelPost p in postList) {
     print(p.text);
+    print(p.creator!.name);
     print(p.creator!.id);
+    print(p.txHash);
   }
 
 
