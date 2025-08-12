@@ -1,0 +1,29 @@
+import 'package:keloke/memo_model_creator.dart';
+
+class MemoModelPost {
+  MemoModelPost({
+    this.text,
+    this.txHash,
+    this.imageUrl,
+    this.videoUrl,
+    this.urls,
+    this.creator,
+    this.tipsInSatoshi,
+    this.likeCounter,
+    this.replyCounter,
+    this.created,
+    this.hashtags
+  });
+
+  final int? tipsInSatoshi;
+  final String? text;
+  final String? txHash;
+  final String? imageUrl;
+  final String? videoUrl;
+  final String? created;
+  final int? likeCounter;
+  final int? replyCounter;
+  final List<String>? urls;
+  final List<String>? hashtags;
+  final MemoModelCreator? creator;
+}

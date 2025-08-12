@@ -7,7 +7,7 @@ import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'memo_topic_model.dart';
+import 'memo_model_topic.dart';
 
 /// Flutter code sample for [SingleChildScrollView].
 

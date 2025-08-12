@@ -6,7 +6,7 @@ import 'package:dart_web_scraper/common/models/parser_model.dart';
 import 'package:dart_web_scraper/common/models/scraper_config_model.dart';
 import 'package:dart_web_scraper/common/models/transformation_options_model.dart';
 import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
-import 'package:keloke/memo_topic_model.dart';
+import 'package:keloke/memo_model_topic.dart';
 
 import 'electrum_websocket_service.dart';
 import 'memo_code.dart';
@@ -70,7 +70,7 @@ void main() async {
     ),
   );
 
-  List<MemoTopicModel> topicList = [];
+  List<MemoModelTopic> topicList = [];
 
   var tbody = topics.values.elementAt(1).toString()
       .replaceAll(",", "")
@@ -84,7 +84,7 @@ void main() async {
 
   int itemIndex = 0;
   for (Map<String, Object> value in topics.values.first as Iterable ) {
-    topicList.add(new MemoTopicModel(
+    topicList.add(new MemoModelTopic(
         header: value["topic"].toString(),
         url: value["topicURL"].toString(),
         followerCount: int.parse(cleanBody[itemIndex+3]),
@@ -93,7 +93,7 @@ void main() async {
     itemIndex += 4;
   }
 
-  for (MemoTopicModel m in topicList) {
+  for (MemoModelTopic m in topicList) {
     print(m.header);
     print(m.url);
     print(m.followerCount);
