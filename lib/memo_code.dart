@@ -101,13 +101,17 @@ Set address alias	0x6d26
 */
 
 enum MemoCode {
-  SetProfileName(opCode: "6d01"),
-  SetProfileText(opCode: "6d05"),
-  SetProfileImgUrl(opCode: "6d0a"),
-  ProfilePostMessage(opCode: "6d02"),
-  TopicPostMessage(opCode: "6d0c"),
+  ProfileName(opCode: "6d01"),
+  ProfileText(opCode: "6d05"),
+  ProfileImgUrl(opCode: "6d0a"),
+  PostMessage(opCode: "6d02"),
+  PostReply(opCode: "6d03"),
+  PostLike(opCode: "6d04"),
+  TopicMessage(opCode: "6d0c"),
   TopicFollow(opCode: "6d0d"),
-  TopicFollowUndo(opCode: "6d0e");
+  TopicFollowUndo(opCode: "6d0e"),
+  MuteUser(opCode: "6d16"),
+  MuteUndo(opCode: "6d17");
 
   final String opCode;
 

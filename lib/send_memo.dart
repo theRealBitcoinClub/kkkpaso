@@ -4,6 +4,7 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:dart_web_scraper/common/enums.dart';
 import 'package:dart_web_scraper/common/models/parser_model.dart';
 import 'package:dart_web_scraper/common/models/scraper_config_model.dart';
+import 'package:dart_web_scraper/common/models/transformation_options_model.dart';
 import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
 import 'package:keloke/memo_topic_model.dart';
 
@@ -39,7 +40,7 @@ void main() async {
           selectors: [
             "td",
           ],
-          multiple: true,
+          multiple: true
         ),
         Parser(
             id: "topic",
@@ -56,6 +57,14 @@ void main() async {
             selectors: [
               "a",
             ]
+        ),
+        Parser(
+            id: "tbody",
+            parents: ["_root"],
+            type: ParserType.text,
+            selectors: [
+              "tbody",
+            ]
         )
       ],
     ),
@@ -63,8 +72,25 @@ void main() async {
 
   List<MemoTopicModel> topicList = [];
 
+  var tbody = topics.values.elementAt(1).toString()
+      .replaceAll(",", "")
+      .split("\n");
+  List<String> cleanBody = [];
+
+  for (String line in tbody.clone()) {
+    if (line.trim().isNotEmpty)
+      cleanBody.add(line.trim());
+  }
+
+  int itemIndex = 0;
   for (Map<String, Object> value in topics.values.first as Iterable ) {
-    topicList.add(new MemoTopicModel(header: value["topic"].toString(), url: value["topicURL"].toString()));
+    topicList.add(new MemoTopicModel(
+        header: value["topic"].toString(),
+        url: value["topicURL"].toString(),
+        followerCount: int.parse(cleanBody[itemIndex+3]),
+        lastPost: cleanBody[itemIndex+1],
+        postCount: int.parse(cleanBody[itemIndex+2])));
+    itemIndex += 4;
   }
 
   for (MemoTopicModel m in topicList) {
