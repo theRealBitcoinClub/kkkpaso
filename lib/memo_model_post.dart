@@ -13,6 +13,7 @@ class MemoModelPost {
     this.likeCounter,
     this.replyCounter,
     this.created,
+    this.age,
     this.hashtags,
     this.topic
   });
@@ -29,4 +30,5 @@ class MemoModelPost {
   final List<String>? hashtags;
   final MemoModelCreator? creator;
   final MemoModelTopic? topic;
+  final String? age;
 }

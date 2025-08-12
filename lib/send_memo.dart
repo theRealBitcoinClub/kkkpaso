@@ -135,6 +135,30 @@ void main() async {
             ]
 
         ),
+        Parser(
+            id: "age",
+            parents: ["posts"],
+            type: ParserType.text,
+            selectors: [
+              ".time",
+            ]
+        ),
+        Parser(
+            id: "created",
+            parents: ["posts"],
+            type: ParserType.attribute,
+            selectors: [
+              ".time::title",
+            ]
+        ),
+        Parser(
+            id: "txhash",
+            parents: ["posts"],
+            type: ParserType.url,
+            selectors: [
+              ".time",
+            ]
+        ),
       Parser(
           id: "creatorName",
           parents: ["posts"],
@@ -151,45 +175,47 @@ void main() async {
               ".imgur",
             ]
         ),
-              Parser(
-                multiple: true,
-                  id: "posttext",
-                  parents: ["_root"],
-                  type: ParserType.text,
-                  selectors: [
-                    ".topic-post",
-                  ]
-              )
+              // Parser(
+              //   multiple: true,
+              //     id: "posttext",
+              //     parents: ["_root"],
+              //     type: ParserType.text,
+              //     selectors: [
+              //       ".topic-post",
+              //     ]
+              // )
       ],
     ),
   );
 
   List<MemoModelPost> postList = [];
 
-  var allPosts = posts.values.elementAt(1).toString()
-      .replaceAll(",", "")
-      .split("\n");
-  List<String> cleanPosts = [];
-  List<String> txHashList = [];
-
-  for (String line in allPosts.clone()) {
-    if (line.trim().isEmpty)
-      continue;
-
-    String trimmedLine = line.trim();
-    cleanPosts.add(trimmedLine);
-
-    var pattern = 'MemoApp.Form.LikesToggle("';
-    if (trimmedLine.startsWith(pattern))
-      txHashList.add(trimmedLine.substring(pattern.length
-          , pattern.length + "3108a3898df75d4f2c972f0543cb9b6ed6cf6c8d84f01a60627bb3455b084bce".length));
-  }
+  // var allPosts = posts.values.elementAt(1).toString()
+  //     .replaceAll(",", "")
+  //     .split("\n");
+  // List<String> cleanPosts = [];
+  // List<String> txHashList = [];
+  //
+  // for (String line in allPosts.clone()) {
+  //   if (line.trim().isEmpty)
+  //     continue;
+  //
+  //   String trimmedLine = line.trim();
+  //   cleanPosts.add(trimmedLine);
+  //
+  //   var pattern = 'MemoApp.Form.LikesToggle("';
+  //   if (trimmedLine.startsWith(pattern))
+  //     txHashList.add(trimmedLine.substring(pattern.length
+  //         , pattern.length + "3108a3898df75d4f2c972f0543cb9b6ed6cf6c8d84f01a60627bb3455b084bce".length));
+  // }
 
   int index = 0;
   for (Map<String, Object> value in posts.values.first as Iterable ) {
     postList.add(new MemoModelPost(topic: currentTopic,
         text: value["msg"].toString(),
-        txHash: txHashList[index],
+        age: value["age"].toString(),
+        created: value["created"].toString(),
+        txHash: value["txhash"].toString().substring("/post".length),
         imageUrl: value["images"].toString(),
         creator: MemoModelCreator(name: value["creatorName"].toString(),
             id: value["profileUrl"].toString().substring(8))));
@@ -205,6 +231,8 @@ void main() async {
     print(p.creator!.name);
     print(p.creator!.id);
     print(p.txHash);
+    print(p.age);
+    print(p.created);
   }
 
 
