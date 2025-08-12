@@ -1,6 +1,7 @@
 /// Simple example how to send request to electurm  with websocket
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/service/models/params.dart';
 import 'package:keloke/request_completer.dart';

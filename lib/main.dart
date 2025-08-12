@@ -1,13 +1,8 @@
-import 'dart:js_interop';
-
 import 'package:dart_web_scraper/common/enums.dart';
 import 'package:dart_web_scraper/common/models/parser_model.dart';
 import 'package:dart_web_scraper/common/models/scraper_config_model.dart';
 import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
-import 'memo_model_topic.dart';
 
 /// Flutter code sample for [SingleChildScrollView].
 

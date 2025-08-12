@@ -1,8 +1,8 @@
 import 'dart:async';
-
-import 'core.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
+
+import 'core.dart';
 
 Future<WebSocketCore> connectSoc(String url, {List<String>? protocols}) async =>
     await WebsocketWeb.connect(url);
