@@ -31,6 +31,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  video_player: ^2.10.0
+  image_picker: ^1.1.2
   bitcoin_base: ^6.7.0
   blockchain_utils: ^5.1.0
   http: ^1.5.0
