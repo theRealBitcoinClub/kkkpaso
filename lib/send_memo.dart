@@ -4,9 +4,8 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:dart_web_scraper/common/enums.dart';
 import 'package:dart_web_scraper/common/models/parser_model.dart';
 import 'package:dart_web_scraper/common/models/scraper_config_model.dart';
-import 'package:dart_web_scraper/common/models/transformation_options_model.dart';
 import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
-import 'package:keloke/memo_model_topic.dart';
+import 'package:keloke/memo_model_post.dart';
 
 import 'electrum_websocket_service.dart';
 import 'memo_code.dart';
@@ -29,77 +28,155 @@ const mainnetServers = [
 void main() async {
   WebScraper webScraper = WebScraper();
 
-  Map<String, Object> topics = await webScraper.scrape(
-    url: Uri.parse("https://memo.cash/topics/all"),
+  // Map<String, Object> topics = await webScraper.scrape(
+  //   url: Uri.parse("https://memo.cash/topics/all"),
+  //   scraperConfig: ScraperConfig(
+  //     parsers: [
+  //       Parser(
+  //         id: "topics",
+  //         parents: ["_root"],
+  //         type: ParserType.element,
+  //         selectors: [
+  //           "td",
+  //         ],
+  //         multiple: true
+  //       ),
+  //       Parser(
+  //           id: "topic",
+  //           parents: ["topics"],
+  //           type: ParserType.text,
+  //           selectors: [
+  //             "a",
+  //           ]
+  //       ),
+  //       Parser(
+  //           id: "topicURL",
+  //           parents: ["topics"],
+  //           type: ParserType.url,
+  //           selectors: [
+  //             "a",
+  //           ]
+  //       ),
+  //       Parser(
+  //           id: "tbody",
+  //           parents: ["_root"],
+  //           type: ParserType.text,
+  //           selectors: [
+  //             "tbody",
+  //           ]
+  //       )
+  //     ],
+  //   ),
+  // );
+  //
+  // List<MemoModelTopic> topicList = [];
+  //
+  // var tbody = topics.values.elementAt(1).toString()
+  //     .replaceAll(",", "")
+  //     .split("\n");
+  // List<String> cleanBody = [];
+  //
+  // for (String line in tbody.clone()) {
+  //   if (line.trim().isNotEmpty)
+  //     cleanBody.add(line.trim());
+  // }
+  //
+  // int itemIndex = 0;
+  // for (Map<String, Object> value in topics.values.first as Iterable ) {
+  //   topicList.add(new MemoModelTopic(
+  //       header: value["topic"].toString(),
+  //       url: value["topicURL"].toString(),
+  //       followerCount: int.parse(cleanBody[itemIndex+3]),
+  //       lastPost: cleanBody[itemIndex+1],
+  //       postCount: int.parse(cleanBody[itemIndex+2])));
+  //   itemIndex += 4;
+  // }
+  //
+  // for (MemoModelTopic m in topicList) {
+  //   print(m.header);
+  //   print(m.url);
+  //   print(m.followerCount);
+  //   print(m.postCount);
+  //   print(m.lastPost);
+  // }
+
+  Map<String, Object> posts = await webScraper.scrape(
+    url: Uri.parse("https://memo.cash/topic/Bitcoin+Map"),
     scraperConfig: ScraperConfig(
       parsers: [
         Parser(
-          id: "topics",
-          parents: ["_root"],
-          type: ParserType.element,
-          selectors: [
-            "td",
-          ],
-          multiple: true
+            id: "posts",
+            parents: ["_root"],
+            type: ParserType.element,
+            selectors: [
+              "topic-post",
+            ],
+            multiple: true
         ),
         Parser(
-            id: "topic",
-            parents: ["topics"],
+            id: "msg",
+            parents: ["posts"],
             type: ParserType.text,
             selectors: [
-              "a",
+              "message",
             ]
         ),
         Parser(
-            id: "topicURL",
-            parents: ["topics"],
+            id: "txHash",
+            parents: ["posts"],
             type: ParserType.url,
             selectors: [
               "a",
             ]
         ),
         Parser(
-            id: "tbody",
+            id: "created",
+            parents: ["posts"],
+            type: ParserType.attribute,
+            selectors: [
+              "title",
+            ]
+        ),
+        Parser(
+            id: "allposts",
             parents: ["_root"],
             type: ParserType.text,
             selectors: [
-              "tbody",
+              "all-posts",
             ]
         )
       ],
     ),
   );
 
-  List<MemoModelTopic> topicList = [];
+  List<MemoModelPost> postList = [];
 
-  var tbody = topics.values.elementAt(1).toString()
+  var allPosts = posts.values.elementAt(1).toString()
       .replaceAll(",", "")
       .split("\n");
-  List<String> cleanBody = [];
+  List<String> cleanPosts = [];
 
-  for (String line in tbody.clone()) {
+  for (String line in allPosts.clone()) {
     if (line.trim().isNotEmpty)
-      cleanBody.add(line.trim());
+      cleanPosts.add(line.trim());
   }
 
-  int itemIndex = 0;
-  for (Map<String, Object> value in topics.values.first as Iterable ) {
-    topicList.add(new MemoModelTopic(
-        header: value["topic"].toString(),
-        url: value["topicURL"].toString(),
-        followerCount: int.parse(cleanBody[itemIndex+3]),
-        lastPost: cleanBody[itemIndex+1],
-        postCount: int.parse(cleanBody[itemIndex+2])));
-    itemIndex += 4;
+  int index = 0;
+  for (Map<String, Object> value in posts.values.first as Iterable ) {
+    postList.add(new MemoModelPost(
+        text: value["msg"].toString(),
+        created: value["created"].toString()));
+        // txHash: int.parse(cleanBody[itemIndex+3]),
+        // lastPost: cleanBody[itemIndex+1],
+        // postCount: int.parse(cleanBody[itemIndex+2])));
+    index += 4;
   }
 
-  for (MemoModelTopic m in topicList) {
-    print(m.header);
-    print(m.url);
-    print(m.followerCount);
-    print(m.postCount);
-    print(m.lastPost);
+  for (MemoModelPost p in postList) {
+    print(p.text);
+    print(p.created);
   }
+
 
   // await print("\n\n" + doMemoAction("ProfilePostMessage", MemoCode.ProfilePostMessage));
   // print("\n${await doMemoAction("IMG1 https://imgur.com/eIEjcUe", MemoCode.ProfilePostMessage,"")}");
