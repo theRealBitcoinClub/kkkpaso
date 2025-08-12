@@ -1,7 +1,11 @@
-import 'dart:developer';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:dart_web_scraper/common/enums.dart';
+import 'package:dart_web_scraper/common/models/parser_model.dart';
+import 'package:dart_web_scraper/common/models/scraper_config_model.dart';
+import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
+import 'package:keloke/memo_topic_model.dart';
 
 import 'electrum_websocket_service.dart';
 import 'memo_code.dart';
@@ -22,10 +26,62 @@ const mainnetServers = [
 ];
 
 void main() async {
+  WebScraper webScraper = WebScraper();
+
+  Map<String, Object> topics = await webScraper.scrape(
+    url: Uri.parse("https://memo.cash/topics/all"),
+    scraperConfig: ScraperConfig(
+      parsers: [
+        Parser(
+          id: "topics",
+          parents: ["_root"],
+          type: ParserType.element,
+          selectors: [
+            "td",
+          ],
+          multiple: true,
+        ),
+        Parser(
+            id: "topic",
+            parents: ["topics"],
+            type: ParserType.text,
+            selectors: [
+              "a",
+            ]
+        ),
+        Parser(
+            id: "topicURL",
+            parents: ["topics"],
+            type: ParserType.url,
+            selectors: [
+              "a",
+            ]
+        )
+      ],
+    ),
+  );
+
+  List<MemoTopicModel> topicList = [];
+
+  for (Map<String, Object> value in topics.values.first as Iterable ) {
+    topicList.add(new MemoTopicModel(header: value["topic"].toString(), url: value["topicURL"].toString()));
+  }
+
+  for (MemoTopicModel m in topicList) {
+    print(m.header);
+    print(m.url);
+    print(m.followerCount);
+    print(m.postCount);
+    print(m.lastPost);
+  }
+
   // await print("\n\n" + doMemoAction("ProfilePostMessage", MemoCode.ProfilePostMessage));
   // print("\n${await doMemoAction("IMG1 https://imgur.com/eIEjcUe", MemoCode.ProfilePostMessage,"")}");
   // print("\n${await doMemoAction("IMG2 https://i.imgur.com/eIEjcUe.jpeg", MemoCode.ProfilePostMessage,"")}");
   // print("\n${await doMemoAction("YT1 https://youtu.be/dQw4w9WgXcQ", MemoCode.ProfilePostMessage,"")}");
+  // print("\n${await doMemoAction("OD1 https://odysee.com/@BitcoinMap:9/HijackingBitcoin:73", MemoCode.ProfilePostMessage,"")}");
+  // print("\n${await doMemoAction("OD2 https://odysee.com/%24/embed/%40BitcoinMap%3A9%2FHijackingBitcoin%3A73?r=9n3v5rTk1CsSYkoqD3gER4SHNML8SxwH", MemoCode.ProfilePostMessage,"")}");
+
   // print("\n${await doMemoAction("YT2 https://www.youtube.com/watch?v=dQw4w9WgXcQ", MemoCode.ProfilePostMessage,"")}");
   // var other = await doMemoAction("https://imgur.com/eIEjcUe.jpg", MemoCode.SetProfileImgUrl, "");
   // print("\n" + other);
@@ -93,7 +149,7 @@ Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String mem
     return "No UTXO funds found";
   }
 
-  var fee = BtcUtils.toSatoshi("0.000003");
+  var fee = BtcUtils.toSatoshi("0.000004");
   final bchTransaction = MemoTransactionBuilder(
     outPuts: [
       /// change input (sumofutxos - spend)
