@@ -4,6 +4,7 @@ import 'package:dart_web_scraper/common/enums.dart';
 import 'package:dart_web_scraper/common/models/parser_model.dart';
 import 'package:dart_web_scraper/common/models/scraper_config_model.dart';
 import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:keloke/memo_model_creator.dart';
 import 'package:keloke/memo_model_post.dart';
 
@@ -124,11 +125,13 @@ List<MemoModelTopic> createMemoModelTopicList(Map<String, Object> topics) {
 }
 
 void printCurrentMemoModelTopic(MemoModelTopic currentTopic) {
-  print(currentTopic.header);
-  print(currentTopic.url);
-  print(currentTopic.followerCount);
-  print(currentTopic.postCount);
-  print(currentTopic.lastPost);
+  if (kDebugMode) {
+    print(currentTopic.header);
+    print(currentTopic.url);
+    print(currentTopic.followerCount);
+    print(currentTopic.postCount);
+    print(currentTopic.lastPost);
+  }
 }
 
 ScraperConfig createScraperConfigMemoModelPost() {
@@ -222,13 +225,15 @@ List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModel
 
 void printMemoModelPost(List<MemoModelPost> postList) {
   for (MemoModelPost p in postList) {
-    print(p.text ?? "");
-    print(p.imageUrl ?? "");
-    print(p.creator!.name);
-    print(p.creator!.id);
-    print(p.txHash);
-    print(p.age);
-    print(p.created);
+    if (kDebugMode) {
+      print(p.text ?? "");
+      print(p.imageUrl ?? "");
+      print(p.creator!.name);
+      print(p.creator!.id);
+      print(p.txHash);
+      print(p.age);
+      print(p.created);
+    }
   }
 }
 
@@ -269,7 +274,9 @@ void testMemoSend() async {
 }
 
 Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String memoTopic) async {
-  print("\n${memoAction.opCode}\n${memoAction.name}");
+  if (kDebugMode) {
+    print("\n${memoAction.opCode}\n${memoAction.name}");
+  }
   final service = await ElectrumWebSocketService.connect(
       "wss://${mainnetServers[2]}:50004");
 
@@ -284,7 +291,9 @@ Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String mem
   final BitcoinCashAddress p2pkhAddress =
       BitcoinCashAddress.fromBaseAddress(publicKey.toAddress());
 
-  print("https://bchblockexplorer.com/address/${p2pkhAddress.address}");
+  if (kDebugMode) {
+    print("https://bchblockexplorer.com/address/${p2pkhAddress.address}");
+  }
 
   final List<ElectrumUtxo> elctrumUtxos = await requestElectrumUtxosFilterCashtokenUtxos(provider, p2pkhAddress);
 
@@ -297,9 +306,11 @@ Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String mem
   final BigInt fee = BtcUtils.toSatoshi("0.000004");
   final BtcTransaction tx = createTransaction(p2pkhAddress, walletBalance, fee, network, utxos, memoMessage, memoAction, memoTopic, privateKey);
   
-  print(tx.txId());
-  print("http://memo.cash/explore/tx/${tx.txId()}");
-  print("https://bchblockexplorer.com/tx/${tx.txId()}");
+  if (kDebugMode) {
+    print(tx.txId());
+    print("http://memo.cash/explore/tx/${tx.txId()}");
+    print("https://bchblockexplorer.com/tx/${tx.txId()}");
+  }
 
   await broadcastTransaction(provider, tx);
   return "Success";
