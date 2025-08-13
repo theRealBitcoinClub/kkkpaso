@@ -239,18 +239,18 @@ List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModel
 
         MemoModelPost memoModelPost = MemoModelPost(
             topic: currentTopic,
-            text: value["msg"].toString(),
+            text: value["msg"]?.toString(),
             age: value["age"].toString(),
             tipsInSatoshi: int.parse((value["tipsInSatoshi"] ?? "0").toString().replaceAll(",", "")),
             likeCounter: likeCount,
             replyCounter: int.parse((value["replyCount"] ?? "0").toString()),
             created: value["created"].toString(),
             txHash: value["txhash"].toString().substring("/post".length),
-            imageUrl: value["imgur"].toString(),
+            imageUrl: value["imgur"]?.toString(),
             creator: MemoModelCreator(name: value["creatorName"].toString(),
             id: value["profileUrl"].toString().substring(8)));
 
-    String text = memoModelPost.text!;
+    String text = memoModelPost.text ?? "";
     String trigger = "MemoApp.YouTube.AddPlayer('";
     if (text.contains(trigger)) {
       int i = text.indexOf(', ');
@@ -258,7 +258,7 @@ List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModel
           + text.substring(i+"', '".length-1,text.indexOf("');", i-1));
     }
 
-    if (memoModelPost.videoUrl == null && memoModelPost.imageUrl == "null")
+    if (memoModelPost.videoUrl == null && memoModelPost.imageUrl == null)
       continue;
 
     postList.add(memoModelPost);
