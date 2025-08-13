@@ -1,10 +1,7 @@
-
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:dart_web_scraper/common/enums.dart';
 import 'package:dart_web_scraper/common/models/parser_model.dart';
-import 'package:dart_web_scraper/common/models/parser_options/string_between_parser_options.dart';
-import 'package:dart_web_scraper/common/models/parser_options_model.dart';
 import 'package:dart_web_scraper/common/models/scraper_config_model.dart';
 import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
 import 'package:keloke/memo_model_creator.dart';
@@ -15,76 +12,103 @@ import 'memo_code.dart';
 import 'memo_model_topic.dart';
 import 'memo_transaction_builder.dart';
 
-
 const mainnetServers = [
-"cashnode.bch.ninja", // Kallisti / Selene Official
-"fulcrum.jettscythe.xyz", // Jett
-"bch.imaginary.cash", // im_uname
-"bitcoincash.network", // Dagur
-"electroncash.dk", // Georg
-"blackie.c3-soft.com", // Calin
-"bch.loping.net",
-"bch.soul-dev.com",
-"bitcoincash.stackwallet.com", // Rehrar / Stack Wallet official
-"node.minisatoshi.cash", // minisatoshi
+  "cashnode.bch.ninja", // Kallisti / Selene Official
+  "fulcrum.jettscythe.xyz", // Jett
+  "bch.imaginary.cash", // im_uname
+  "bitcoincash.network", // Dagur
+  "electroncash.dk", // Georg
+  "blackie.c3-soft.com", // Calin
+  "bch.loping.net",
+  "bch.soul-dev.com",
+  "bitcoincash.stackwallet.com", // Rehrar / Stack Wallet official
+  "node.minisatoshi.cash", // minisatoshi
 ];
 
 void main() async {
+  // testMemoScraper();
+  testMemoSend();
+}
+
+void testMemoScraper() async {
   WebScraper webScraper = WebScraper();
 
   Map<String, Object> topics = await webScraper.scrape(
     url: Uri.parse("https://memo.cash/topics/all"),
-    scraperConfig: ScraperConfig(
-      parsers: [
-        Parser(
-          id: "topics",
-          parents: ["_root"],
-          type: ParserType.element,
-          selectors: [
-            "td",
-          ],
-          multiple: true
-        ),
-        Parser(
-            id: "topic",
-            parents: ["topics"],
-            type: ParserType.text,
-            selectors: [
-              "a",
-            ]
-        ),
-        Parser(
-            id: "topicURL",
-            parents: ["topics"],
-            type: ParserType.url,
-            selectors: [
-              "a",
-            ]
-        ),
-        Parser(
-            id: "tbody",
-            parents: ["_root"],
-            type: ParserType.text,
-            selectors: [
-              "tbody",
-            ]
-        )
-      ],
-    ),
+    scraperConfig: createScraperConfigMemoModelTopic(),
   );
 
-  List<MemoModelTopic> topicList = [];
+  List<MemoModelTopic> topicList = createMemoModelTopicList(topics);
 
+  final config = createScraperConfigMemoModelPost();
+
+  for (MemoModelTopic currentTopic in topicList) {
+    printCurrentMemoModelTopic(currentTopic);
+
+    Map<String, Object> posts = await webScraper.scrape(
+      url: Uri.parse("https://memo.cash/" + currentTopic.url!),
+      scraperConfig: config,
+    );
+
+    List<MemoModelPost> postList = createMemoModelPostList(posts, currentTopic);
+
+    printMemoModelPost(postList);
+  }
+}
+
+ScraperConfig createScraperConfigMemoModelTopic() {
+  return ScraperConfig(
+    parsers: [
+      Parser(
+        id: "topics",
+        parents: ["_root"],
+        type: ParserType.element,
+        selectors: [
+          "td",
+        ],
+        multiple: true
+      ),
+      Parser(
+          id: "topic",
+          parents: ["topics"],
+          type: ParserType.text,
+          selectors: [
+            "a",
+          ]
+      ),
+      Parser(
+          id: "topicURL",
+          parents: ["topics"],
+          type: ParserType.url,
+          selectors: [
+            "a",
+          ]
+      ),
+      Parser(
+          id: "tbody",
+          parents: ["_root"],
+          type: ParserType.text,
+          selectors: [
+            "tbody",
+          ]
+      )
+    ],
+  );
+}
+
+List<MemoModelTopic> createMemoModelTopicList(Map<String, Object> topics) {
+  List<MemoModelTopic> topicList = [];
+  
   var tbody = topics.values.elementAt(1).toString()
       .replaceAll(",", "")
       .split("\n");
   List<String> cleanBody = [];
-
+  
   for (String line in tbody.clone()) {
     if (line.trim().isNotEmpty)
       cleanBody.add(line.trim());
   }
-
+  
   int itemIndex = 0;
   for (Map<String, Object> value in topics.values.first as Iterable ) {
     topicList.add(new MemoModelTopic(
@@ -95,120 +119,93 @@ void main() async {
         postCount: int.parse(cleanBody[itemIndex+2])));
     itemIndex += 4;
   }
+  return topicList;
+}
 
-  for (MemoModelTopic currentTopic in topicList) {
-    print(currentTopic.header);
-    print(currentTopic.url);
-    print(currentTopic.followerCount);
-    print(currentTopic.postCount);
-    print(currentTopic.lastPost);
+void printCurrentMemoModelTopic(MemoModelTopic currentTopic) {
+  print(currentTopic.header);
+  print(currentTopic.url);
+  print(currentTopic.followerCount);
+  print(currentTopic.postCount);
+  print(currentTopic.lastPost);
+}
 
-
-
-  Map<String, Object> posts = await webScraper.scrape(
-    url: Uri.parse("https://memo.cash/" + currentTopic.url!),
-    scraperConfig: ScraperConfig(
-      parsers: [
-        Parser(
-            id: "posts",
-            parents: ["_root"],
-            type: ParserType.element,
-            selectors: [
-              ".topic-post",
-            ],
-            multiple: true
-        ),
-        Parser(
-            id: "msg",
-            parents: ["posts"],
-            type: ParserType.text,
-            selectors: [
-              ".message",
-            ]
-        ),
-        Parser(
-            id: "profileUrl",
-            parents: ["posts"],
-            type: ParserType.url,
-            selectors: [
-              ".profile",
-            ]
-
-        ),
-        Parser(
-            id: "age",
-            parents: ["posts"],
-            type: ParserType.text,
-            selectors: [
-              ".time",
-            ]
-        ),
-        Parser(
-            id: "created",
-            parents: ["posts"],
-            type: ParserType.attribute,
-            selectors: [
-              ".time::title",
-            ]
-        ),
-        Parser(
-            id: "txhash",
-            parents: ["posts"],
-            type: ParserType.url,
-            selectors: [
-              ".time",
-            ]
-        ),
+ScraperConfig createScraperConfigMemoModelPost() {
+  return ScraperConfig(
+    parsers: [
       Parser(
-          id: "creatorName",
+          id: "posts",
+          parents: ["_root"],
+          type: ParserType.element,
+          selectors: [
+            ".topic-post",
+          ],
+          multiple: true
+      ),
+      Parser(
+          id: "msg",
           parents: ["posts"],
           type: ParserType.text,
           selectors: [
-            ".profile",
+            ".message",
           ]
       ),
-        Parser(
-            id: "images",
-            parents: ["posts"],
-            type: ParserType.url,
-            selectors: [
-              ".imgur",
-            ]
-        ),
-              // Parser(
-              //   multiple: true,
-              //     id: "posttext",
-              //     parents: ["_root"],
-              //     type: ParserType.text,
-              //     selectors: [
-              //       ".topic-post",
-              //     ]
-              // )
-      ],
+      Parser(
+          id: "profileUrl",
+          parents: ["posts"],
+          type: ParserType.url,
+          selectors: [
+            ".profile",
+          ]
+
+      ),
+      Parser(
+          id: "age",
+          parents: ["posts"],
+          type: ParserType.text,
+          selectors: [
+            ".time",
+          ]
+      ),
+      Parser(
+          id: "created",
+          parents: ["posts"],
+          type: ParserType.attribute,
+          selectors: [
+            ".time::title",
+          ]
+      ),
+      Parser(
+          id: "txhash",
+          parents: ["posts"],
+          type: ParserType.url,
+          selectors: [
+            ".time",
+          ]
+      ),
+    Parser(
+        id: "creatorName",
+        parents: ["posts"],
+        type: ParserType.text,
+        selectors: [
+          ".profile",
+        ]
     ),
+      Parser(
+          id: "images",
+          parents: ["posts"],
+          type: ParserType.url,
+          selectors: [
+            ".imgur",
+          ]
+      )
+    ],
   );
+}
 
+List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModelTopic currentTopic) {
   List<MemoModelPost> postList = [];
-
-  // var allPosts = posts.values.elementAt(1).toString()
-  //     .replaceAll(",", "")
-  //     .split("\n");
-  // List<String> cleanPosts = [];
-  // List<String> txHashList = [];
-  //
-  // for (String line in allPosts.clone()) {
-  //   if (line.trim().isEmpty)
-  //     continue;
-  //
-  //   String trimmedLine = line.trim();
-  //   cleanPosts.add(trimmedLine);
-  //
-  //   var pattern = 'MemoApp.Form.LikesToggle("';
-  //   if (trimmedLine.startsWith(pattern))
-  //     txHashList.add(trimmedLine.substring(pattern.length
-  //         , pattern.length + "3108a3898df75d4f2c972f0543cb9b6ed6cf6c8d84f01a60627bb3455b084bce".length));
-  // }
-
+  
   int index = 0;
   for (Map<String, Object> value in posts.values.first as Iterable ) {
     postList.add(new MemoModelPost(topic: currentTopic,
@@ -219,12 +216,12 @@ void main() async {
         imageUrl: value["images"].toString(),
         creator: MemoModelCreator(name: value["creatorName"].toString(),
             id: value["profileUrl"].toString().substring(8))));
-        // txHash: int.parse(cleanBody[itemIndex+3]),
-        // lastPost: cleanBody[itemIndex+1],
-        // postCount: int.parse(cleanBody[itemIndex+2])));
     index ++;
   }
+  return postList;
+}
 
+void printMemoModelPost(List<MemoModelPost> postList) {
   for (MemoModelPost p in postList) {
     print(p.text !=null ? p.text : "");
     print(p.imageUrl != null ? p.imageUrl : "");
@@ -234,90 +231,100 @@ void main() async {
     print(p.age);
     print(p.created);
   }
+}
 
-
-  }
-  // await print("\n\n" + doMemoAction("ProfilePostMessage", MemoCode.ProfilePostMessage));
-  // print("\n${await doMemoAction("IMG1 https://imgur.com/eIEjcUe", MemoCode.ProfilePostMessage,"")}");
-  // print("\n${await doMemoAction("IMG2 https://i.imgur.com/eIEjcUe.jpeg", MemoCode.ProfilePostMessage,"")}");
-  // print("\n${await doMemoAction("YT1 https://youtu.be/dQw4w9WgXcQ", MemoCode.ProfilePostMessage,"")}");
-  // print("\n${await doMemoAction("OD1 https://odysee.com/@BitcoinMap:9/HijackingBitcoin:73", MemoCode.ProfilePostMessage,"")}");
-  // print("\n${await doMemoAction("OD2 https://odysee.com/%24/embed/%40BitcoinMap%3A9%2FHijackingBitcoin%3A73?r=9n3v5rTk1CsSYkoqD3gER4SHNML8SxwH", MemoCode.ProfilePostMessage,"")}");
-
-  // print("\n${await doMemoAction("YT2 https://www.youtube.com/watch?v=dQw4w9WgXcQ", MemoCode.ProfilePostMessage,"")}");
-  // var other = await doMemoAction("https://imgur.com/eIEjcUe.jpg", MemoCode.SetProfileImgUrl, "");
+void testMemoSend() async {
+  // print("\n\n" + await doMemoAction("PostMessage", MemoCode.ProfileMessage));
+  // print("\n${await doMemoAction("IMG1 https://imgur.com/eIEjcUe", MemoCode.ProfileMessage,"")}");
+  // print("\n${await doMemoAction("IMG2 https://i.imgur.com/eIEjcUe.jpeg", MemoCode.ProfileMessage,"")}");
+  // print("\n${await doMemoAction("YT1 https://youtu.be/dQw4w9WgXcQ", MemoCode.ProfileMessage,"")}");
+  // print("\n${await doMemoAction("OD1 https://odysee.com/@BitcoinMap:9/HijackingBitcoin:73", MemoCode.ProfileMessage,"")}");
+  // print("\n${await doMemoAction("OD2 https://odysee.com/%24/embed/%40BitcoinMap%3A9%2FHijackingBitcoin%3A73?r=9n3v5rTk1CsSYkoqD3gER4SHNML8SxwH", MemoCode.ProfileMessage,"")}");
+  //
+  // print("\n${await doMemoAction("YT2 https://www.youtube.com/watch?v=dQw4w9WgXcQ", MemoCode.ProfileMessage,"")}");
+  // sleep(Duration(seconds: 1));
+  // var other = await doMemoAction("https://imgur.com/eIEjcUe.jpg", MemoCode.ProfileImgUrl, "");
   // print("\n" + other);
-  // other = await doMemoAction("Keloke", MemoCode.SetProfileName);
+  // sleep(Duration(seconds: 1));
+  // other = await doMemoAction("Keloke", MemoCode.ProfileName,"");
   // print("\n" + other);
-  // other = await doMemoAction("Ke paso en Barrio Bitcoin", MemoCode.SetProfileText);
+  // sleep(Duration(seconds: 1));
+  // other = await doMemoAction("Ke paso en Barrio Bitcoin", MemoCode.ProfileText,"");
   // print("\n" + other);
-  // other = await doMemoAction("Bitcoin+Map", MemoCode.TopicFollow);
+  // sleep(Duration(seconds: 1));
+  // other = await doMemoAction("Bitcoin+Map", MemoCode.TopicFollow,"");
   // print("\n" + other);
-  // other = await doMemoAction("Escuchame wow increible no me digas ke veina naguara vergacion", MemoCode.TopicPostMessage, "zxcvsadf");
+  // sleep(Duration(seconds: 1));
+  // other = await doMemoAction("Escuchame wow increible no me digas ke veina naguara vergacion", MemoCode.TopicMessage, "zxcvsadf");
   // print("\n" + other);
-  // other = await doMemoAction("Bitcoin+Map", MemoCode.TopicFollowUndo);
+  // sleep(Duration(seconds: 1));
+  // other = await doMemoAction("Bitcoin+Map", MemoCode.TopicFollowUndo,"");
+  // print("\n" + other);
+  // sleep(Duration(seconds: 1));
+  var other = await doMemoAction("17ZY9npgMXstBGXHDCz1umWUEAc9ZU1hSZ", MemoCode.MuteUser,"");
+  print("\n" + other);
+  // sleep(Duration(seconds: 1));
+  // other = await doMemoAction("17ZY9npgMXstBGXHDCz1umWUEAc9ZU1hSZ", MemoCode.MuteUndo,"");
   // print("\n" + other);
 }
 
 Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String memoTopic) async {
   print("\n" + memoAction.opCode + "\n" + memoAction.name);
-  /// connect to electrum service with websocket
-  /// please see `services_examples` folder for how to create electrum websocket service
   final service = await ElectrumWebSocketService.connect(
       "wss://" + mainnetServers[2] + ":50004");
 
-  /// create provider with service
   final provider = ElectrumProvider(service);
 
-  /// network
   const network = BitcoinCashNetwork.mainnet;
 
-  /// initialize private key
   final privateKey = ECPrivate.fromWif("5HtpWVLipP5iKskfrhZLcxveVV39JZpiMGQseYRepRDUPGp97sU", netVersion: network.wifNetVer);
 
-  /// public key
   final publicKey = privateKey.getPublic();
 
-  /// Derives a P2PKH address from the given public key and converts it to a Bitcoin Cash address
-  /// for enhanced accessibility within the network.
-  final p2pkhAddress =
+  final BitcoinCashAddress p2pkhAddress =
       BitcoinCashAddress.fromBaseAddress(publicKey.toAddress());
 
-  /// Reads all UTXOs (Unspent Transaction Outputs) associated with the account.
-  /// We does not need tokens utxo and we set to false.
-  final elctrumUtxos =
-      await provider.request(ElectrumRequestScriptHashListUnspent(
-    scriptHash: p2pkhAddress.baseAddress.pubKeyHash(),
-    includeTokens: false,
-  ));
+  print("https://bchblockexplorer.com/address/" + p2pkhAddress.address);
 
-  /// Converts all UTXOs to a list of UtxoWithAddress, containing UTXO information along with address details.
-  final List<UtxoWithAddress> utxos = elctrumUtxos
-      .map((e) => UtxoWithAddress(
-          utxo: e.toUtxo(p2pkhAddress.type),
-          ownerDetails: UtxoAddressDetails(
-              publicKey: publicKey.toHex(), address: p2pkhAddress.baseAddress)))
-      .toList();
+  final List<ElectrumUtxo> elctrumUtxos = await requestElectrumUtxosFilterCashtokenUtxos(provider, p2pkhAddress);
 
-  /// dump all the SLP transactions
-  for(UtxoWithAddress utxo in utxos.clone()) {
-    if (utxo.utxo.value.toSignedInt32 == 546)
-      utxos.remove(utxo);
-  }
+  List<UtxoWithAddress> utxos = addUtxoAddressDetailsAsOwnerDetailsToCreateUtxoWithAddressModelList(elctrumUtxos, p2pkhAddress, publicKey);
 
-  /// som of utxos in satoshi
-  final sumOfUtxo = utxos.sumOfUtxosValue();
-  if (sumOfUtxo == BigInt.zero) {
-    return "No UTXO funds found";
-  }
+  utxos = removeSlpUtxos(utxos);
 
-  var fee = BtcUtils.toSatoshi("0.000004");
-  final bchTransaction = MemoTransactionBuilder(
+  final BigInt walletBalance = getTotalWalletBalanceInSatoshis(utxos);
+
+  final BigInt fee = BtcUtils.toSatoshi("0.000004");
+  final BtcTransaction tx = createTransaction(p2pkhAddress, walletBalance, fee, network, utxos, memoMessage, memoAction, memoTopic, privateKey);
+  
+  print(tx.txId());
+  print("http://memo.cash/explore/tx/" + tx.txId());
+  print("https://bchblockexplorer.com/tx/" + tx.txId());
+
+  await broadcastTransaction(provider, tx);
+  return "Success";
+}
+
+Future<void> broadcastTransaction(ElectrumProvider provider, BtcTransaction tx) async {
+  await provider.request(
+      ElectrumRequestBroadCastTransaction(transactionRaw: tx.toHex()),timeout: const Duration(seconds: 30));
+}
+
+BtcTransaction createTransaction(BitcoinCashAddress p2pkhAddress, BigInt walletBalance, BigInt fee, BitcoinCashNetwork network, List<UtxoWithAddress> utxos, String memoMessage, MemoCode memoAction, String memoTopic, ECPrivate privateKey) {
+  final MemoTransactionBuilder txBuilder = createTransactionBuilder(p2pkhAddress, walletBalance, fee, network, utxos, memoMessage, memoAction, memoTopic);
+  final tx =
+      txBuilder.buildTransaction((trDigest, utxo, publicKey, sighash) {
+    return privateKey.signECDSA(trDigest, sighash: sighash);
+  });
+  return tx;
+}
+
+MemoTransactionBuilder createTransactionBuilder(BitcoinCashAddress p2pkhAddress, BigInt walletBalance, BigInt fee, BitcoinCashNetwork network, List<UtxoWithAddress> utxos, String memoMessage, MemoCode memoAction, String memoTopic) {
+  final txBuilder = MemoTransactionBuilder(
     outPuts: [
-      /// change input (sumofutxos - spend)
       BitcoinOutput(
         address: p2pkhAddress.baseAddress,
-        value: sumOfUtxo -
+        value: walletBalance -
             fee,
       )
     ],
@@ -328,26 +335,40 @@ Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String mem
       memoCode: memoAction,
       memoTopic: memoTopic
   );
-  final transaaction =
-      bchTransaction.buildTransaction((trDigest, utxo, publicKey, sighash) {
-    return privateKey.signECDSA(trDigest, sighash: sighash);
-  });
+  return txBuilder;
+}
 
-  /// transaction ID
-  transaaction.txId();
-  print(transaaction.txId());
+BigInt getTotalWalletBalanceInSatoshis(List<UtxoWithAddress> utxos) {
+   final sumOfUtxo = utxos.sumOfUtxosValue();
+  if (sumOfUtxo == BigInt.zero) {
+    throw Exception("No UTXO funds found");
+  }
+  return sumOfUtxo;
+}
 
-  /// for calculation fee
-  transaaction.getSize();
+Future<List<ElectrumUtxo>> requestElectrumUtxosFilterCashtokenUtxos(ElectrumProvider provider, BitcoinCashAddress p2pkhAddress) async {
+  final elctrumUtxos =
+      await provider.request(ElectrumRequestScriptHashListUnspent(
+    scriptHash: p2pkhAddress.baseAddress.pubKeyHash(),
+    includeTokens: false,
+  ));
+  return elctrumUtxos;
+}
 
-  /// raw of encoded transaction in hex
-  final transactionRaw = transaaction.toHex();
+List<UtxoWithAddress> addUtxoAddressDetailsAsOwnerDetailsToCreateUtxoWithAddressModelList(List<ElectrumUtxo> elctrumUtxos, BitcoinCashAddress p2pkhAddress, ECPublic publicKey) {
+  List<UtxoWithAddress> utxos = elctrumUtxos
+      .map((e) => UtxoWithAddress(
+          utxo: e.toUtxo(p2pkhAddress.type),
+          ownerDetails: UtxoAddressDetails(
+              publicKey: publicKey.toHex(), address: p2pkhAddress.baseAddress)))
+      .toList();
+  return utxos;
+}
 
-  /// send transaction to network
-  await provider.request(
-      ElectrumRequestBroadCastTransaction(transactionRaw: transactionRaw),timeout: const Duration(seconds: 30));
-  return "Success";
-
-  /// done! check the transaction in block explorer
-  ///  https://chipnet.imaginary.cash/tx/9e534f8a64f76b1af5ccf2522392697f2242fd215206a458cfe286bca4a3ec0a
+List<UtxoWithAddress> removeSlpUtxos(List<UtxoWithAddress> utxos) {
+  for(UtxoWithAddress utxo in utxos.clone()) {
+    if (utxo.utxo.value.toSignedInt32 == 546)
+      utxos.remove(utxo);
+  }
+  return utxos;
 }

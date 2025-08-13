@@ -104,7 +104,7 @@ enum MemoCode {
   ProfileName(opCode: "6d01"),
   ProfileText(opCode: "6d05"),
   ProfileImgUrl(opCode: "6d0a"),
-  PostMessage(opCode: "6d02"),
+  ProfileMessage(opCode: "6d02"),
   PostReply(opCode: "6d03"),
   PostLike(opCode: "6d04"),
   TopicMessage(opCode: "6d0c"),
