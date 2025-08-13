@@ -10,7 +10,7 @@ class MemoModelTopic {
     this.posts
   });
 
-  final List<MemoModelPost>? posts;
+  List<MemoModelPost>? posts;
   final String? header;
   final String? url;
   final int? postCount;

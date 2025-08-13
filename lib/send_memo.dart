@@ -26,8 +26,8 @@ const mainnetServers = [
 ];
 
 void main() async {
-  // testMemoScraper();
-  testMemoSend();
+  testMemoScraper();
+  // testMemoSend();
 }
 
 void testMemoScraper() async {
@@ -169,6 +169,30 @@ ScraperConfig createScraperConfigMemoModelPost() {
           ]
       ),
       Parser(
+          id: "likeCount",
+          parents: ["posts"],
+          type: ParserType.text,
+          selectors: [
+            ".like-info",
+          ]
+      ),
+      Parser(
+          id: "replyCount",
+          parents: ["posts"],
+          type: ParserType.text,
+          selectors: [
+            ".reply-count",
+          ]
+      ),
+      Parser(
+          id: "tipsInSatoshi",
+          parents: ["posts"],
+          type: ParserType.text,
+          selectors: [
+            ".tip-button",
+          ]
+      ),
+      Parser(
           id: "created",
           parents: ["posts"],
           type: ParserType.attribute,
@@ -208,15 +232,28 @@ List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModel
   List<MemoModelPost> postList = [];
 
   for (Map<String, Object> value in posts.values.first as Iterable ) {
-    postList.add(MemoModelPost(topic: currentTopic,
-        text: value["msg"].toString(),
-        age: value["age"].toString(),
-        created: value["created"].toString(),
-        txHash: value["txhash"].toString().substring("/post".length),
-        imageUrl: value["images"].toString(),
-        creator: MemoModelCreator(name: value["creatorName"].toString(),
-            id: value["profileUrl"].toString().substring(8))));
+    var likeCount = 0;
+    try {
+      likeCount = int.parse(value["likeCount"].toString().split("\n")[0]);
+    } catch (e) {}
+
+        MemoModelPost memoModelPost = MemoModelPost(
+            topic: currentTopic,
+            text: value["msg"].toString(),
+            age: value["age"].toString(),
+            tipsInSatoshi: int.parse((value["tipsInSatoshi"] ?? "0").toString().replaceAll(",", "")),
+            likeCounter: likeCount,
+            replyCounter: int.parse((value["replyCount"] ?? "0").toString()),
+            created: value["created"].toString(),
+            txHash: value["txhash"].toString().substring("/post".length),
+            imageUrl: value["images"].toString(),
+            creator: MemoModelCreator(name: value["creatorName"].toString(),
+            id: value["profileUrl"].toString().substring(8)));
+
+    postList.add(memoModelPost);
   }
+
+  currentTopic.posts = postList;
   return postList;
 }
 

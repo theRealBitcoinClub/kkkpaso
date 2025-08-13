@@ -28,7 +28,7 @@ class MemoModelPost {
   final int? replyCounter;
   final List<String>? urls;
   final List<String>? hashtags;
-  final MemoModelCreator? creator;
-  final MemoModelTopic? topic;
+  late final MemoModelCreator? creator;
+  late final MemoModelTopic? topic;
   final String? age;
 }
