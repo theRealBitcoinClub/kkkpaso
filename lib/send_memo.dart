@@ -217,11 +217,11 @@ ScraperConfig createScraperConfigMemoModelPost() {
         ]
     ),
       Parser(
-          id: "images",
+          id: "imgur",
           parents: ["posts"],
-          type: ParserType.url,
+          type: ParserType.attribute,
           selectors: [
-            ".imgur",
+            ".imgur::href",
           ]
       )
     ],
@@ -246,9 +246,20 @@ List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModel
             replyCounter: int.parse((value["replyCount"] ?? "0").toString()),
             created: value["created"].toString(),
             txHash: value["txhash"].toString().substring("/post".length),
-            imageUrl: value["images"].toString(),
+            imageUrl: value["imgur"].toString(),
             creator: MemoModelCreator(name: value["creatorName"].toString(),
             id: value["profileUrl"].toString().substring(8)));
+
+    String text = memoModelPost.text!;
+    String trigger = "MemoApp.YouTube.AddPlayer('";
+    if (text.contains(trigger)) {
+      int i = text.indexOf(', ');
+      memoModelPost.videoUrl="https://www.youtube.com/watch?v="
+          + text.substring(i+"', '".length-1,text.indexOf("');", i-1));
+    }
+
+    if (memoModelPost.videoUrl == null && memoModelPost.imageUrl == "null")
+      continue;
 
     postList.add(memoModelPost);
   }
@@ -261,6 +272,7 @@ void printMemoModelPost(List<MemoModelPost> postList) {
   for (MemoModelPost p in postList) {
     print(p.text ?? "");
     print(p.imageUrl ?? "");
+    print(p.videoUrl ?? "");
     print(p.creator!.name);
     print(p.creator!.id);
     print(p.txHash);

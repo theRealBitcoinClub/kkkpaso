@@ -22,7 +22,7 @@ class MemoModelPost {
   final String? text;
   final String? txHash;
   final String? imageUrl;
-  final String? videoUrl;
+  String? videoUrl;
   final String? created;
   final int? likeCounter;
   final int? replyCounter;
