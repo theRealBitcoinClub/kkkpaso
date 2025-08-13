@@ -13,8 +13,7 @@
         "cupertino_icons",
         "dart_web_scraper",
         "flutter",
-        "http",
-        "json_annotation"
+        "http"
       ],
       "devDependencies": [
         "flutter_lints",
@@ -54,13 +53,6 @@
         "test_api",
         "vector_math",
         "vm_service"
-      ]
-    },
-    {
-      "name": "json_annotation",
-      "version": "4.9.0",
-      "dependencies": [
-        "meta"
       ]
     },
     {

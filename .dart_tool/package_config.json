@@ -122,12 +122,6 @@
       "languageVersion": "2.17"
     },
     {
-      "name": "json_annotation",
-      "rootUri": "file:///home/pachamama/.pub-cache/hosted/pub.dev/json_annotation-4.9.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "json_path",
       "rootUri": "file:///home/pachamama/.pub-cache/hosted/pub.dev/json_path-0.7.6",
       "packageUri": "lib/",
