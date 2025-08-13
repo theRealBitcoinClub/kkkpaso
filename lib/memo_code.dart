@@ -101,17 +101,21 @@ Set address alias	0x6d26
 */
 
 enum MemoCode {
-  ProfileName(opCode: "6d01"),
-  ProfileText(opCode: "6d05"),
-  ProfileImgUrl(opCode: "6d0a"),
-  ProfileMessage(opCode: "6d02"),
-  PostReply(opCode: "6d03"),
-  PostLike(opCode: "6d04"),
-  TopicMessage(opCode: "6d0c"),
-  TopicFollow(opCode: "6d0d"),
-  TopicFollowUndo(opCode: "6d0e"),
-  MuteUser(opCode: "6d16"),
-  MuteUndo(opCode: "6d17");
+  profileName(opCode: "6d01"),
+  profileText(opCode: "6d05"),
+  profileImgUrl(opCode: "6d0a"),
+  profileMessage(opCode: "6d02"),
+  // postReply(opCode: "6d03"),
+  // postLike(opCode: "6d04"),
+  topicMessage(opCode: "6d0c"),
+  topicFollow(opCode: "6d0d"),
+  topicFollowUndo(opCode: "6d0e");
+  // MuteUser(opCode: "6d16"),
+  // MuteUndo(opCode: "6d17");
+  // REPLY, LIKE, MUTE have encoding issues
+  // f3b34db1d057a771f8b63e4d0c10fd897bc54b91e2118815b9454f4ead2c83ba JASON DOING SOME FUNNY STUFF
+  // var other = await doMemoAction("reply", MemoCode.postReply, "ba832cad4e4f45b9158811e2914bc57b89fd100c4d3eb6f871a757d0b14db3f3");
+
 
   final String opCode;
 

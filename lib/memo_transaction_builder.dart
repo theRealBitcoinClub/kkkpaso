@@ -375,7 +375,7 @@ be retrieved by anyone who examines the blockchain's history.
             .fold(
                 BigInt.zero,
                 (previousValue, element) =>
-                    previousValue + (element.value ?? BigInt.zero));
+                    previousValue + element.value);
 
         if (amount != i.value) {
           throw DartBitcoinPluginException(

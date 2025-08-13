@@ -2,6 +2,7 @@ import 'package:dart_web_scraper/common/enums.dart';
 import 'package:dart_web_scraper/common/models/parser_model.dart';
 import 'package:dart_web_scraper/common/models/scraper_config_model.dart';
 import 'package:dart_web_scraper/dart_web_scraper/web_scraper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Flutter code sample for [SingleChildScrollView].
@@ -101,7 +102,9 @@ class SingleChildScrollViewExample extends StatelessWidget {
 
 
 
-    print(topics["topics"].toString());
+    if (kDebugMode) {
+      print(topics["topics"].toString());
+    }
 
     // List<MemoTopicModel> userList = await MemoTopicModel().backgroundJsonParser(topics["topics"].toString());
     //

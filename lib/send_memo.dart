@@ -206,8 +206,7 @@ ScraperConfig createScraperConfigMemoModelPost() {
 
 List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModelTopic currentTopic) {
   List<MemoModelPost> postList = [];
-  
-  int index = 0;
+
   for (Map<String, Object> value in posts.values.first as Iterable ) {
     postList.add(MemoModelPost(topic: currentTopic,
         text: value["msg"].toString(),
@@ -217,7 +216,6 @@ List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModel
         imageUrl: value["images"].toString(),
         creator: MemoModelCreator(name: value["creatorName"].toString(),
             id: value["profileUrl"].toString().substring(8))));
-    index ++;
   }
   return postList;
 }
@@ -235,7 +233,7 @@ void printMemoModelPost(List<MemoModelPost> postList) {
 }
 
 void testMemoSend() async {
-  // print("\n\n" + await doMemoAction("PostMessage", MemoCode.ProfileMessage));
+  // print("\n\n" + await doMemoAction("PostMessage", MemoCode.profileMessage,""));
   // print("\n${await doMemoAction("IMG1 https://imgur.com/eIEjcUe", MemoCode.ProfileMessage,"")}");
   // print("\n${await doMemoAction("IMG2 https://i.imgur.com/eIEjcUe.jpeg", MemoCode.ProfileMessage,"")}");
   // print("\n${await doMemoAction("YT1 https://youtu.be/dQw4w9WgXcQ", MemoCode.ProfileMessage,"")}");
@@ -244,7 +242,8 @@ void testMemoSend() async {
   //
   // print("\n${await doMemoAction("YT2 https://www.youtube.com/watch?v=dQw4w9WgXcQ", MemoCode.ProfileMessage,"")}");
   // sleep(Duration(seconds: 1));
-  // var other = await doMemoAction("https://imgur.com/eIEjcUe.jpg", MemoCode.ProfileImgUrl, "");
+  // f3b34db1d057a771f8b63e4d0c10fd897bc54b91e2118815b9454f4ead2c83ba JASON DOING SOME FUNNY STUFF
+  // var other = await doMemoAction("reply", MemoCode.postReply, "ba832cad4e4f45b9158811e2914bc57b89fd100c4d3eb6f871a757d0b14db3f3");
   // print("\n" + other);
   // sleep(Duration(seconds: 1));
   // other = await doMemoAction("Keloke", MemoCode.ProfileName,"");
@@ -262,8 +261,8 @@ void testMemoSend() async {
   // other = await doMemoAction("Bitcoin+Map", MemoCode.TopicFollowUndo,"");
   // print("\n" + other);
   // sleep(Duration(seconds: 1));
-  var other = await doMemoAction("17ZY9npgMXstBGXHDCz1umWUEAc9ZU1hSZ", MemoCode.MuteUser,"");
-  print("\n$other");
+  // var other = await doMemoAction("17ZY9npgMXstBGXHDCz1umWUEAc9ZU1hSZ", MemoCode.MuteUser,"");
+  // print("\n$other");
   // sleep(Duration(seconds: 1));
   // other = await doMemoAction("17ZY9npgMXstBGXHDCz1umWUEAc9ZU1hSZ", MemoCode.MuteUndo,"");
   // print("\n" + other);
