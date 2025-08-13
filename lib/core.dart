@@ -5,6 +5,7 @@
 /// how Electrum and HTTP services can be utilized. You can
 /// leverage these examples as a reference to easily create
 /// your own services tailored to your application's specific needs.
+library;
 import 'cross.dart'
     if (dart.library.html) 'web.dart'
     if (dart.library.io) 'io.dart';

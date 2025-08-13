@@ -27,8 +27,11 @@ import 'memo_code.dart';
 ///
 /// Note: The constructor automatically validates the builder by calling the [_validateBuilder] method.
 class MemoTransactionBuilder implements BasedBitcoinTransacationBuilder {
+  @override
   final List<BitcoinBaseOutput> outPuts;
+  @override
   final BigInt fee;
+  @override
   final BasedUtxoNetwork network;
   final List<UtxoWithAddress> utxosInfo;
   final String? memo;
@@ -36,7 +39,9 @@ class MemoTransactionBuilder implements BasedBitcoinTransacationBuilder {
   final String memoTopic;
   final bool enableRBF;
   final bool isFakeTransaction;
+  @override
   final BitcoinOrdering inputOrdering;
+  @override
   final BitcoinOrdering outputOrdering;
 
   MemoTransactionBuilder(
@@ -309,8 +314,9 @@ be retrieved by anyone who examines the blockchain's history.
 */
   Script memoOpReturn(String message, MemoCode code, [String topic = ""]) {
     final toHex = BytesUtils.toHexString(StringUtils.toBytes(message));
-    if (topic.isNotEmpty)
+    if (topic.isNotEmpty) {
       return Script(script: ['OP_RETURN', code.opCode, BytesUtils.toHexString(StringUtils.toBytes(topic)), toHex]);
+    }
     return Script(script: ['OP_RETURN', code.opCode, toHex]);
   }
 

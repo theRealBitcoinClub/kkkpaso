@@ -1,4 +1,5 @@
 /// Simple example how to send request to electurm  with websocket
+library;
 import 'dart:async';
 import 'dart:convert';
 

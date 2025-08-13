@@ -46,7 +46,7 @@ void testMemoScraper() async {
     printCurrentMemoModelTopic(currentTopic);
 
     Map<String, Object> posts = await webScraper.scrape(
-      url: Uri.parse("https://memo.cash/" + currentTopic.url!),
+      url: Uri.parse("https://memo.cash/${currentTopic.url!}"),
       scraperConfig: config,
     );
 
@@ -105,13 +105,14 @@ List<MemoModelTopic> createMemoModelTopicList(Map<String, Object> topics) {
   List<String> cleanBody = [];
   
   for (String line in tbody.clone()) {
-    if (line.trim().isNotEmpty)
+    if (line.trim().isNotEmpty) {
       cleanBody.add(line.trim());
+    }
   }
   
   int itemIndex = 0;
   for (Map<String, Object> value in topics.values.first as Iterable ) {
-    topicList.add(new MemoModelTopic(
+    topicList.add(MemoModelTopic(
         header: value["topic"].toString(),
         url: value["topicURL"].toString(),
         followerCount: int.parse(cleanBody[itemIndex+3]),
@@ -208,7 +209,7 @@ List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModel
   
   int index = 0;
   for (Map<String, Object> value in posts.values.first as Iterable ) {
-    postList.add(new MemoModelPost(topic: currentTopic,
+    postList.add(MemoModelPost(topic: currentTopic,
         text: value["msg"].toString(),
         age: value["age"].toString(),
         created: value["created"].toString(),
@@ -223,8 +224,8 @@ List<MemoModelPost> createMemoModelPostList(Map<String, Object> posts, MemoModel
 
 void printMemoModelPost(List<MemoModelPost> postList) {
   for (MemoModelPost p in postList) {
-    print(p.text !=null ? p.text : "");
-    print(p.imageUrl != null ? p.imageUrl : "");
+    print(p.text ?? "");
+    print(p.imageUrl ?? "");
     print(p.creator!.name);
     print(p.creator!.id);
     print(p.txHash);
@@ -262,16 +263,16 @@ void testMemoSend() async {
   // print("\n" + other);
   // sleep(Duration(seconds: 1));
   var other = await doMemoAction("17ZY9npgMXstBGXHDCz1umWUEAc9ZU1hSZ", MemoCode.MuteUser,"");
-  print("\n" + other);
+  print("\n$other");
   // sleep(Duration(seconds: 1));
   // other = await doMemoAction("17ZY9npgMXstBGXHDCz1umWUEAc9ZU1hSZ", MemoCode.MuteUndo,"");
   // print("\n" + other);
 }
 
 Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String memoTopic) async {
-  print("\n" + memoAction.opCode + "\n" + memoAction.name);
+  print("\n${memoAction.opCode}\n${memoAction.name}");
   final service = await ElectrumWebSocketService.connect(
-      "wss://" + mainnetServers[2] + ":50004");
+      "wss://${mainnetServers[2]}:50004");
 
   final provider = ElectrumProvider(service);
 
@@ -284,7 +285,7 @@ Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String mem
   final BitcoinCashAddress p2pkhAddress =
       BitcoinCashAddress.fromBaseAddress(publicKey.toAddress());
 
-  print("https://bchblockexplorer.com/address/" + p2pkhAddress.address);
+  print("https://bchblockexplorer.com/address/${p2pkhAddress.address}");
 
   final List<ElectrumUtxo> elctrumUtxos = await requestElectrumUtxosFilterCashtokenUtxos(provider, p2pkhAddress);
 
@@ -298,8 +299,8 @@ Future<String> doMemoAction (String memoMessage, MemoCode memoAction, String mem
   final BtcTransaction tx = createTransaction(p2pkhAddress, walletBalance, fee, network, utxos, memoMessage, memoAction, memoTopic, privateKey);
   
   print(tx.txId());
-  print("http://memo.cash/explore/tx/" + tx.txId());
-  print("https://bchblockexplorer.com/tx/" + tx.txId());
+  print("http://memo.cash/explore/tx/${tx.txId()}");
+  print("https://bchblockexplorer.com/tx/${tx.txId()}");
 
   await broadcastTransaction(provider, tx);
   return "Success";
@@ -367,8 +368,9 @@ List<UtxoWithAddress> addUtxoAddressDetailsAsOwnerDetailsToCreateUtxoWithAddress
 
 List<UtxoWithAddress> removeSlpUtxos(List<UtxoWithAddress> utxos) {
   for(UtxoWithAddress utxo in utxos.clone()) {
-    if (utxo.utxo.value.toSignedInt32 == 546)
+    if (utxo.utxo.value.toSignedInt32 == 546) {
       utxos.remove(utxo);
+    }
   }
   return utxos;
 }
