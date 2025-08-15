@@ -9,15 +9,7 @@ import 'memo_model_post.dart';
 import 'memo_model_topic.dart';
 
 void main() async {
-  // MemoScraper().loadUserData("id");
-  List<MemoModelCreator> creators =  await MemoScraper().scrapeCreators("most-actions");
-  // MemoScraper().scrapeCreators("");
-  // MemoScraper().scrapeCreators("most-followers");
-  // MemoScraper().scrapeCreators("new");
-  for (MemoModelCreator creator in creators) {
-    await MemoScraper().loadCreator(creator.id!, creator);
-  }
-  print("object");
+
 }
 
 class MemoScraper {
@@ -36,6 +28,16 @@ class MemoScraper {
     result.profileText = split[1];
 
     return result;
+  }
+
+  void scrapeCreators() async {
+    List<MemoModelCreator> creators =  await MemoScraper().scrapeCreators("most-actions");
+    // MemoScraper().scrapeCreators("");
+    // MemoScraper().scrapeCreators("most-followers");
+    // MemoScraper().scrapeCreators("new");
+    for (MemoModelCreator creator in creators) {
+      await MemoScraper().loadCreator(creator.id!, creator);
+    }
   }
 
   ScraperConfig createScraperConfigProfile() {
