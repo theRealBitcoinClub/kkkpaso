@@ -30,7 +30,7 @@ class MemoScraper {
     return result;
   }
 
-  void scrapeCreators() async {
+  void startScrapeCreators() async {
     List<MemoModelCreator> creators =  await MemoScraper().scrapeCreators("most-actions");
     // MemoScraper().scrapeCreators("");
     // MemoScraper().scrapeCreators("most-followers");
